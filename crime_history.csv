@@ -1,0 +1,51 @@
+id,type,latitude,longitude,severity,timestamp,description
+1,Assault,13.0827,80.2707,9,2024-01-10 22:00,Physical assault near Central Station Chennai
+2,Robbery,13.0405,80.2337,8,2024-01-12 21:15,Chain snatching near T. Nagar market
+3,Harassment,13.0067,80.2575,7,2024-01-15 19:30,Eve-teasing reported near Adyar bus stop
+4,Police Station,13.0850,80.2100,-10,2024-01-01 00:00,Safety Point: Anna Nagar Police Station
+5,Poor Lighting,11.0168,76.9558,5,2024-02-01 20:00,Dark stretches in Gandhipuram Coimbatore
+6,Isolated Area,11.0000,76.9700,6,2024-02-05 23:00,Empty industrial lanes near Peelamedu
+7,Assault,9.9252,78.1198,9,2024-01-20 22:30,Late night assault near Madurai Meenakshi temple area
+8,Robbery,10.7905,78.7047,8,2024-02-10 21:00,Bag snatching reported in Chatram Bus Stand Trichy
+9,CCTV Zone,13.0674,80.2376,-5,2024-01-01 00:00,Safety Point: High surveillance in Nungambakkam
+10,Drug Activity,11.6643,78.1460,8,2024-02-12 22:45,Illegal gatherings near Salem Railway Station
+11,Harassment,13.0300,80.2700,6,2024-02-14 18:30,Harassment reported in Marina Beach dark zones
+12,Robbery,13.0500,80.2122,7,2024-01-25 21:50,Phone theft near Koyambedu CMBT
+13,Police Station,11.0180,76.9600,-10,2024-01-01 00:00,Safety Point: Coimbatore R1 Station
+14,Assault,10.8000,78.6800,9,2024-02-18 23:15,Violent incident near Trichy NIT road
+15,Isolated Area,9.9100,78.1200,5,2024-02-20 20:00,Low light path near Madurai Mattuthavani
+16,Harassment,13.0900,80.2900,7,2024-01-28 19:45,Harassment in Royapuram narrow streets
+17,CCTV Zone,11.0200,76.9500,-5,2024-01-01 00:00,Safety Point: Race Course surveillance Coimbatore
+18,Robbery,11.6500,78.1500,7,2024-02-22 21:30,Snatching incident near Salem Old Bus Stand
+19,Assault,12.9249,80.1000,8,2024-02-24 22:10,Attack reported near Tambaram flyover
+20,Poor Lighting,13.0100,80.2000,4,2024-02-25 19:00,Street lights off in Guindy industrial estate
+21,Police Station,9.9300,78.1300,-10,2024-01-01 00:00,Safety Point: Madurai Town Hall Station
+22,Harassment,10.7800,78.7100,6,2024-02-26 18:00,Reported stalking near Trichy Junction
+23,Robbery,12.9700,79.1300,7,2024-01-15 21:00,Mobile snatching in Vellore Katpadi area
+24,Assault,13.0400,80.2500,9,2024-03-01 23:45,Violent theft near Mylapore
+25,CCTV Zone,13.0300,80.1500,-5,2024-01-01 00:00,Safety Point: Porur signal surveillance
+26,Isolated Area,11.0300,77.0000,5,2024-03-02 20:30,Isolated path near Saravanampatti
+27,Robbery,9.9500,78.1500,8,2024-03-04 22:00,Knife point robbery in Anna Nagar Madurai
+28,Police Station,10.8100,78.6900,-10,2024-01-01 00:00,Safety Point: Trichy Fort Station
+29,Harassment,13.1200,80.2200,6,2024-03-05 19:20,Catcalling reported in Padi flyover area
+30,Assault,13.0700,80.1800,8,2024-03-06 21:40,Assault near Mogappair West
+31,Poor Lighting,11.6700,78.1300,4,2024-03-07 20:15,Dark zones in Salem Gugai area
+32,Robbery,12.6700,79.9800,7,2024-01-18 21:10,Snatching near Chengalpattu Railway station
+33,CCTV Zone,13.0000,80.2200,-5,2024-01-01 00:00,Safety Point: Saidapet surveillance cameras
+34,Isolated Area,11.4100,77.6800,6,2024-03-08 23:00,Empty roads in Erode bypass
+35,Assault,10.3600,77.9700,8,2024-03-09 22:30,Late night brawl in Dindigul town
+36,Police Station,13.1000,80.2500,-10,2024-01-01 00:00,Safety Point: Perambur Station
+37,Harassment,9.1800,77.8700,6,2024-03-10 18:50,Stalking reports in Kovilpatti
+38,Robbery,8.7100,77.7500,7,2024-01-22 21:30,Theft near Tirunelveli Junction
+39,Assault,13.0200,80.1000,9,2024-03-11 23:55,Attack reported in Poonamallee bypass
+40,CCTV Zone,10.7900,78.7000,-5,2024-01-01 00:00,Safety Point: Trichy Central Bus Stand CCTV
+41,Poor Lighting,11.0500,76.9900,5,2024-03-12 20:00,Dark spots in Thudiyalur
+42,Isolated Area,13.1500,80.1800,6,2024-03-13 22:40,Unsafe path in Avadi outskirts
+43,Robbery,11.6600,78.1600,7,2024-03-14 21:20,Phone snatching near Salem 5-roads
+44,Police Station,12.9300,80.1300,-10,2024-01-01 00:00,Safety Point: Chromepet Station
+45,Harassment,13.0600,80.2000,6,2024-03-15 19:10,Harassment in Anna Nagar Tower Park area
+46,Assault,10.9900,76.9500,8,2024-03-16 22:50,Physical assault in Coimbatore RS Puram
+47,CCTV Zone,9.9200,78.1100,-5,2024-01-01 00:00,Safety Point: Madurai Periyar Bus Stand CCTV
+48,Isolated Area,10.7500,79.1300,5,2024-03-17 21:00,Unlit road near Thanjavur Big Temple
+49,Robbery,13.1800,80.3000,7,2024-03-18 23:15,Snatching near Ennore
+50,Police Station,13.0400,80.2600,-10,2024-01-01 00:00,Safety Point: Santhome Station

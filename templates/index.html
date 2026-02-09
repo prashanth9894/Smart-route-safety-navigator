@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Safe Route Navigator (Place Names)</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; margin: 0; height: 100vh; background: #f0f2f5; }
+        #sidebar { width: 350px; padding: 25px; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 1000; }
+        #map { flex-grow: 1; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 14px; background: #c2185b; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .score-card { margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2 style="color: #c2185b;">🛡️ Safety Navigator</h2>
+        <p><small>Enter Place Names (e.g., <b>Chennai Central</b>)</small></p>
+        <input type="text" id="origin" placeholder="Start Location">
+        <input type="text" id="destination" placeholder="End Location">
+        <button onclick="findSafePath()">Find Safest Route</button>
+        <div id="results"></div>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        var map = L.map('map').setView([13.0827, 80.2707], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        var initialPins = {{ initial_pins | tojson | safe }};
+        initialPins.forEach(function(pin) {
+            L.circleMarker([pin.latitude, pin.longitude], {
+                color: pin.severity > 0 ? 'red' : 'blue',
+                radius: 5,
+                fillOpacity: 0.5
+            }).addTo(map).bindPopup(`<b>${pin.type}</b><br>${pin.description}`);
+        });
+
+        var pathLayer, pathMarkers = [];
+
+        async function findSafePath() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = "<p>Searching for locations...</p>";
+
+            const res = await fetch('/get_safe_route', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    origin: document.getElementById('origin').value, 
+                    destination: document.getElementById('destination').value 
+                })
+            });
+            const data = await res.json();
+            
+            if (data.error) {
+                resultsDiv.innerHTML = "";
+                return alert(data.error);
+            }
+
+            if (pathLayer) map.removeLayer(pathLayer);
+            pathMarkers.forEach(m => map.removeLayer(m));
+            pathMarkers = [];
+
+            const routeColor = data.safety_score > 70 ? '#2e7d32' : '#d32f2f';
+            pathLayer = L.geoJSON(data.geometry, {
+                style: { color: routeColor, weight: 7, opacity: 0.8 }
+            }).addTo(map);
+
+            data.pins.forEach(pin => {
+                let m = L.marker([pin.lat, pin.lng]).addTo(map)
+                         .bindPopup(`<b>Path Alert: ${pin.type}</b><br>${pin.desc}`);
+                pathMarkers.push(m);
+            });
+
+            map.fitBounds(pathLayer.getBounds());
+            resultsDiv.innerHTML = `
+                <div class="score-card" style="background: ${data.safety_score > 70 ? '#e8f5e9' : '#ffebee'}; border: 1px solid ${routeColor}">
+                    <h3 style="margin:0; color: ${routeColor}">Safety Score: ${data.safety_score}%</h3>
+                    <p style="margin:10px 0 0 0;">Distance: ${data.distance}</p>
+                </div>`;
+        }
+    </script>
+</body>
+</html>
