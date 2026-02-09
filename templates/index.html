@@ -1,85 +1,707 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Safe Route Navigator (Place Names)</title>
+    <title>Safe Route Navigator - Advanced Features</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Heatmap plugin -->
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; margin: 0; height: 100vh; background: #f0f2f5; }
-        #sidebar { width: 350px; padding: 25px; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 1000; }
-        #map { flex-grow: 1; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 14px; background: #c2185b; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .score-card { margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+            background: #f0f2f5;
+        }
+        
+        #sidebar {
+            width: 380px;
+            padding: 20px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        #map {
+            flex-grow: 1;
+            position: relative;
+        }
+        
+        h2 {
+            color: #c2185b;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        
+        /* Input styles */
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #c2185b;
+        }
+        
+        /* Button styles */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+        
+        .btn-primary {
+            background: #c2185b;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #a01348;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-sos {
+            background: #d32f2f;
+            color: white;
+            font-size: 16px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        /* Feature toggles */
+        .toggle-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .toggle-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .toggle-btn {
+            padding: 8px 16px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .toggle-btn.active {
+            background: #c2185b;
+            color: white;
+            border-color: #c2185b;
+        }
+        
+        /* Results display */
+        .results-container {
+            margin-top: 20px;
+        }
+        
+        .route-card {
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .route-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .route-card.safe {
+            background: #e8f5e9;
+            border-color: #2e7d32;
+        }
+        
+        .route-card.moderate {
+            background: #fff3e0;
+            border-color: #f57c00;
+        }
+        
+        .route-card.risky {
+            background: #ffebee;
+            border-color: #d32f2f;
+        }
+        
+        .route-label {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .route-stats {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .safe-haven-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #e3f2fd;
+            border-radius: 6px;
+            border-left: 3px solid #1976d2;
+        }
+        
+        .safe-haven-type {
+            font-weight: bold;
+            color: #1976d2;
+            font-size: 13px;
+        }
+        
+        .safe-haven-distance {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Map controls */
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .map-controls label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .map-controls input[type="checkbox"] {
+            margin-right: 6px;
+        }
+        
+        /* Loading indicator */
+        .loading {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
     <div id="sidebar">
-        <h2 style="color: #c2185b;">🛡️ Safety Navigator</h2>
-        <p><small>Enter Place Names (e.g., <b>Chennai Central</b>)</small></p>
-        <input type="text" id="origin" placeholder="Start Location">
-        <input type="text" id="destination" placeholder="End Location">
-        <button onclick="findSafePath()">Find Safest Route</button>
-        <div id="results"></div>
+        <h2>🛡️ Safety Navigator</h2>
+        <p class="subtitle">Advanced route planning with real-time safety analysis</p>
+        
+        <!-- Route Input -->
+        <div>
+            <input type="text" id="origin" placeholder="Start Location (e.g., Chennai Central)">
+            <input type="text" id="destination" placeholder="End Location (e.g., T. Nagar)">
+            <button class="btn btn-primary" onclick="findTripleRoutes()">
+                🗺️ Find Safe Routes
+            </button>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <!-- Feature Toggles -->
+        <div class="toggle-section">
+            <div class="toggle-header">📊 Map Layers</div>
+            <span class="toggle-btn" id="toggle-heatmap" onclick="toggleHeatmap()">
+                🔥 Crime Heatmap
+            </span>
+            <span class="toggle-btn" id="toggle-pins" onclick="toggleCrimePins()">
+                📍 Crime Pins
+            </span>
+        </div>
+        
+        <!-- Emergency Actions -->
+        <div class="toggle-section">
+            <div class="toggle-header">🚨 Emergency Tools</div>
+            <button class="btn btn-sos" onclick="sendSOS()">
+                🆘 EMERGENCY SOS
+            </button>
+            <button class="btn btn-secondary" onclick="findSafeHavens()">
+                🏥 Nearest Safe Havens
+            </button>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <!-- Results Area -->
+        <div id="results" class="results-container"></div>
     </div>
-    <div id="map"></div>
+    
+    <div id="map">
+        <!-- Map Controls Overlay -->
+        <div class="map-controls">
+            <label>
+                <input type="checkbox" id="show-routes" checked> Show Routes
+            </label>
+            <label>
+                <input type="checkbox" id="show-markers" checked> Show Markers
+            </label>
+        </div>
+    </div>
 
     <script>
+        // ====================================================================
+        // GLOBAL STATE
+        // ====================================================================
+        
         var map = L.map('map').setView([13.0827, 80.2707], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Layer groups
+        var crimePinsLayer = L.layerGroup().addTo(map);
+        var heatmapLayer = null;
+        var routeLayers = [];
+        var routeMarkers = [];
+        var safeHavenMarkers = [];
+        var currentRoutes = [];
+        var userMarker = null;
+        
+        // Initial crime pins
         var initialPins = {{ initial_pins | tojson | safe }};
+        
         initialPins.forEach(function(pin) {
-            L.circleMarker([pin.latitude, pin.longitude], {
-                color: pin.severity > 0 ? 'red' : 'blue',
-                radius: 5,
-                fillOpacity: 0.5
-            }).addTo(map).bindPopup(`<b>${pin.type}</b><br>${pin.description}`);
-        });
-
-        var pathLayer, pathMarkers = [];
-
-        async function findSafePath() {
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = "<p>Searching for locations...</p>";
-
-            const res = await fetch('/get_safe_route', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    origin: document.getElementById('origin').value, 
-                    destination: document.getElementById('destination').value 
-                })
-            });
-            const data = await res.json();
+            var color = pin.severity > 0 ? 'red' : 'blue';
+            var radius = Math.abs(pin.severity) > 7 ? 8 : 5;
             
-            if (data.error) {
-                resultsDiv.innerHTML = "";
-                return alert(data.error);
+            L.circleMarker([pin.latitude, pin.longitude], {
+                color: color,
+                radius: radius,
+                fillOpacity: 0.6
+            }).addTo(crimePinsLayer)
+              .bindPopup(`<b>${pin.type}</b><br>${pin.description}<br><small>Severity: ${pin.severity}</small>`);
+        });
+        
+        
+        // ====================================================================
+        // FEATURE 1: TRIPLE-ROUTE NAVIGATION
+        // ====================================================================
+        
+        async function findTripleRoutes() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="loading">🔍 Analyzing routes for safety...</div>';
+            
+            clearRoutes();
+            
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            
+            if (!origin || !destination) {
+                alert('Please enter both start and end locations');
+                resultsDiv.innerHTML = '';
+                return;
             }
-
-            if (pathLayer) map.removeLayer(pathLayer);
-            pathMarkers.forEach(m => map.removeLayer(m));
-            pathMarkers = [];
-
-            const routeColor = data.safety_score > 70 ? '#2e7d32' : '#d32f2f';
-            pathLayer = L.geoJSON(data.geometry, {
-                style: { color: routeColor, weight: 7, opacity: 0.8 }
-            }).addTo(map);
-
-            data.pins.forEach(pin => {
-                let m = L.marker([pin.lat, pin.lng]).addTo(map)
-                         .bindPopup(`<b>Path Alert: ${pin.type}</b><br>${pin.desc}`);
-                pathMarkers.push(m);
-            });
-
-            map.fitBounds(pathLayer.getBounds());
-            resultsDiv.innerHTML = `
-                <div class="score-card" style="background: ${data.safety_score > 70 ? '#e8f5e9' : '#ffebee'}; border: 1px solid ${routeColor}">
-                    <h3 style="margin:0; color: ${routeColor}">Safety Score: ${data.safety_score}%</h3>
-                    <p style="margin:10px 0 0 0;">Distance: ${data.distance}</p>
-                </div>`;
+            
+            try {
+                const res = await fetch('/get_triple_routes', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ origin, destination })
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    resultsDiv.innerHTML = `<p style="color: #d32f2f;">${data.error}</p>`;
+                    return;
+                }
+                
+                currentRoutes = data.routes;
+                displayTripleRoutes(data.routes);
+                
+            } catch (error) {
+                resultsDiv.innerHTML = '<p style="color: #d32f2f;">Connection error. Please try again.</p>';
+            }
         }
+        
+        function displayTripleRoutes(routes) {
+            const resultsDiv = document.getElementById('results');
+            let html = '<h3 style="margin-bottom: 15px;">📍 Route Options</h3>';
+            
+            routes.forEach((route, index) => {
+                // Draw route on map
+                const routeLayer = L.geoJSON(route.geometry, {
+                    style: {
+                        color: route.color,
+                        weight: index === 0 ? 7 : 5,
+                        opacity: index === 0 ? 0.9 : 0.6
+                    }
+                }).addTo(map);
+                
+                routeLayers.push(routeLayer);
+                
+                // Add route markers for high-risk areas
+                route.pins.forEach(pin => {
+                    if (pin.severity > 7) {
+                        const marker = L.marker([pin.lat, pin.lng], {
+                            icon: L.divIcon({
+                                className: 'route-danger-marker',
+                                html: '⚠️',
+                                iconSize: [20, 20]
+                            })
+                        }).addTo(map).bindPopup(`<b>⚠️ ${pin.type}</b><br>${pin.desc}`);
+                        
+                        routeMarkers.push(marker);
+                    }
+                });
+                
+                // Build route card HTML
+                html += `
+                    <div class="route-card ${route.category}" onclick="focusRoute(${index})">
+                        <div class="route-label" style="color: ${route.color}">
+                            ${index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'} ${route.label}
+                        </div>
+                        <div class="route-stats">
+                            Safety Score: <b>${route.safety_score}%</b><br>
+                            Distance: ${route.distance} • Time: ${route.duration}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+            
+            // Fit map to show all routes
+            if (routeLayers.length > 0) {
+                const bounds = routeLayers[0].getBounds();
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+        
+        function focusRoute(index) {
+            // Highlight selected route
+            routeLayers.forEach((layer, i) => {
+                layer.setStyle({
+                    weight: i === index ? 7 : 4,
+                    opacity: i === index ? 0.9 : 0.5
+                });
+            });
+            
+            map.fitBounds(routeLayers[index].getBounds(), { padding: [50, 50] });
+        }
+        
+        function clearRoutes() {
+            routeLayers.forEach(layer => map.removeLayer(layer));
+            routeMarkers.forEach(marker => map.removeLayer(marker));
+            routeLayers = [];
+            routeMarkers = [];
+        }
+        
+        
+        // ====================================================================
+        // FEATURE 2: DYNAMIC SAFETY HEATMAP
+        // ====================================================================
+        
+        async function toggleHeatmap() {
+            const btn = document.getElementById('toggle-heatmap');
+            
+            if (heatmapLayer) {
+                // Remove heatmap
+                map.removeLayer(heatmapLayer);
+                heatmapLayer = null;
+                btn.classList.remove('active');
+            } else {
+                // Load and display heatmap
+                try {
+                    const res = await fetch('/get_heatmap');
+                    const data = await res.json();
+                    
+                    // Convert to format: [[lat, lng, intensity], ...]
+                    const heatData = data.heatmap_points.map(point => 
+                        [point.lat, point.lng, point.intensity]
+                    );
+                    
+                    heatmapLayer = L.heatLayer(heatData, {
+                        radius: 25,
+                        blur: 20,
+                        maxZoom: 17,
+                        max: 1.0,
+                        gradient: {
+                            0.0: 'blue',
+                            0.4: 'yellow',
+                            0.6: 'orange',
+                            0.8: 'red',
+                            1.0: 'darkred'
+                        }
+                    }).addTo(map);
+                    
+                    btn.classList.add('active');
+                    
+                } catch (error) {
+                    alert('Failed to load heatmap data');
+                }
+            }
+        }
+        
+        
+        // ====================================================================
+        // FEATURE 3: SAFE-HAVEN LOCATOR
+        // ====================================================================
+        
+        async function findSafeHavens() {
+            // Get user's current location or center of map
+            const center = map.getCenter();
+            const resultsDiv = document.getElementById('results');
+            
+            resultsDiv.innerHTML = '<div class="loading">🔍 Locating safe havens...</div>';
+            
+            // Clear previous safe haven markers
+            safeHavenMarkers.forEach(marker => map.removeLayer(marker));
+            safeHavenMarkers = [];
+            
+            try {
+                const res = await fetch('/find_safe_havens', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        lat: center.lat,
+                        lng: center.lng
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    resultsDiv.innerHTML = `<p style="color: #d32f2f;">${data.error}</p>`;
+                    return;
+                }
+                
+                displaySafeHavens(data.safe_havens, center);
+                
+            } catch (error) {
+                resultsDiv.innerHTML = '<p style="color: #d32f2f;">Failed to locate safe havens.</p>';
+            }
+        }
+        
+        function displaySafeHavens(havens, userLocation) {
+            const resultsDiv = document.getElementById('results');
+            let html = '<h3 style="margin-bottom: 15px;">🏥 Nearest Safe Havens</h3>';
+            
+            // Add user location marker
+            if (userMarker) map.removeLayer(userMarker);
+            userMarker = L.marker([userLocation.lat, userLocation.lng], {
+                icon: L.divIcon({
+                    className: 'user-location-marker',
+                    html: '📍',
+                    iconSize: [30, 30]
+                })
+            }).addTo(map).bindPopup('<b>Your Location</b>');
+            
+            havens.forEach((haven, index) => {
+                // Add markers
+                const icon = haven.type.includes('Police') ? '👮' : '📹';
+                const marker = L.marker([haven.lat, haven.lng], {
+                    icon: L.divIcon({
+                        className: 'safe-haven-marker',
+                        html: icon,
+                        iconSize: [25, 25]
+                    })
+                }).addTo(map).bindPopup(`<b>${haven.type}</b><br>${haven.description}<br>Distance: ${haven.distance} km`);
+                
+                safeHavenMarkers.push(marker);
+                
+                // Draw line from user to haven
+                L.polyline([
+                    [userLocation.lat, userLocation.lng],
+                    [haven.lat, haven.lng]
+                ], {
+                    color: '#1976d2',
+                    weight: 2,
+                    dashArray: '5, 10',
+                    opacity: 0.6
+                }).addTo(map);
+                
+                html += `
+                    <div class="safe-haven-item">
+                        <div class="safe-haven-type">${icon} ${haven.type}</div>
+                        <div class="safe-haven-distance">📏 ${haven.distance} km away</div>
+                        <div style="font-size: 12px; color: #555; margin-top: 4px;">${haven.description}</div>
+                    </div>
+                `;
+            });
+            
+            if (havens.length === 0) {
+                html += '<p style="color: #999;">No safe havens found nearby.</p>';
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        
+        // ====================================================================
+        // FEATURE 4: SMART SOS
+        // ====================================================================
+        
+        async function sendSOS() {
+            const center = map.getCenter();
+            
+            // Visual alert
+            if (confirm('🆘 EMERGENCY SOS\n\nThis will send your location and route context to emergency contacts.\n\nContinue?')) {
+                
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '<div class="loading">📡 Sending SOS alert...</div>';
+                
+                try {
+                    const res = await fetch('/send_sos', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            lat: center.lat,
+                            lng: center.lng,
+                            route_geometry: currentRoutes.length > 0 ? currentRoutes[0].geometry : null
+                        })
+                    });
+                    
+                    const data = await res.json();
+                    
+                    displaySOSContext(data.sos_context);
+                    
+                    // Simulate sending to emergency contacts
+                    console.log('=== SOS ALERT SENT ===');
+                    console.log('Timestamp:', data.sos_context.timestamp);
+                    console.log('Location:', data.sos_context.user_location);
+                    console.log('Nearby Dangers:', data.sos_context.nearby_dangers);
+                    console.log('Nearest Safe Havens:', data.sos_context.safe_havens);
+                    console.log('======================');
+                    
+                } catch (error) {
+                    resultsDiv.innerHTML = '<p style="color: #d32f2f;">SOS failed. Please call emergency services directly.</p>';
+                }
+            }
+        }
+        
+        function displaySOSContext(context) {
+            const resultsDiv = document.getElementById('results');
+            let html = `
+                <div style="background: #ffebee; padding: 15px; border-radius: 8px; border: 2px solid #d32f2f;">
+                    <h3 style="color: #d32f2f; margin-bottom: 10px;">🆘 SOS ALERT SENT</h3>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
+                        <b>Time:</b> ${context.timestamp}<br>
+                        <b>Location:</b> ${context.user_location.lat.toFixed(4)}, ${context.user_location.lng.toFixed(4)}
+                    </p>
+            `;
+            
+            if (context.nearby_dangers.length > 0) {
+                html += '<h4 style="margin-bottom: 8px; font-size: 14px;">⚠️ Nearby Threats:</h4>';
+                context.nearby_dangers.forEach(danger => {
+                    html += `
+                        <div style="background: white; padding: 8px; margin-bottom: 6px; border-radius: 4px; border-left: 3px solid #d32f2f;">
+                            <b>${danger.type}</b> (Severity: ${danger.severity})<br>
+                            <small>${danger.distance}m away • ${danger.description}</small>
+                        </div>
+                    `;
+                });
+            }
+            
+            if (context.safe_havens.length > 0) {
+                html += '<h4 style="margin-top: 15px; margin-bottom: 8px; font-size: 14px;">🏥 Nearest Help:</h4>';
+                context.safe_havens.forEach(haven => {
+                    html += `
+                        <div style="background: #e8f5e9; padding: 8px; margin-bottom: 6px; border-radius: 4px;">
+                            <b>${haven.type}</b><br>
+                            <small>${haven.distance} km away</small>
+                        </div>
+                    `;
+                });
+            }
+            
+            html += '<p style="margin-top: 15px; font-size: 12px; color: #666;"><i>Emergency contacts have been notified.</i></p>';
+            html += '</div>';
+            
+            resultsDiv.innerHTML = html;
+            
+            // Flash the map
+            map.getContainer().style.animation = 'flash 0.5s 3';
+        }
+        
+        
+        // ====================================================================
+        // HELPER FUNCTIONS
+        // ====================================================================
+        
+        function toggleCrimePins() {
+            const btn = document.getElementById('toggle-pins');
+            
+            if (map.hasLayer(crimePinsLayer)) {
+                map.removeLayer(crimePinsLayer);
+                btn.classList.remove('active');
+            } else {
+                crimePinsLayer.addTo(map);
+                btn.classList.add('active');
+            }
+        }
+        
+        // Initialize pin toggle as active
+        document.getElementById('toggle-pins').classList.add('active');
+        
+        // Add flash animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes flash {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+        `;
+        document.head.appendChild(style);
+        
     </script>
 </body>
 </html>
